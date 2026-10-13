@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>福音對話教練</title>
+  <meta name="description" content="準備、覆盤、練習：幫助你更好地跟人聊天、建立關係並傳福音。">
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="tabbar" aria-label="主要頁面">
+    <span class="brand">福音對話教練</span>
+    <a href="#/prepare" data-page="prepare"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h10M4 19h7"/></svg><span>準備</span></a>
+    <a href="#/debrief" data-page="debrief"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg><span>覆盤</span></a>
+    <a href="#/practice" data-page="practice"><svg viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></svg><span>練習</span></a>
+    <a href="#/notes" data-page="notes"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h5"/></svg><span>筆記</span></a>
+    <a href="#/guide" data-page="guide"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5V19c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V4.5c-3-.5-6 0-8 1.5zM12 6v14.5"/></svg><span>指南</span></a>
+  </nav>
+
+  <main id="main"></main>
+
+  <dialog id="verse-dialog">
+    <div class="dlg-head"><h3 id="verse-title"></h3><button id="verse-close" aria-label="關閉">×</button></div>
+    <div id="verse-body"></div>
+    <a id="verse-link" class="small" target="_blank" rel="noopener">在信望愛聖經網查看上下文 ↗</a>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data/content.js"></script>
+  <script src="data/verses.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/prompts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

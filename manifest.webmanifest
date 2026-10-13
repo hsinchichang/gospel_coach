@@ -1,0 +1,10 @@
+{
+  "name": "福音對話教練",
+  "short_name": "福音對話",
+  "start_url": "./#/prepare",
+  "display": "standalone",
+  "background_color": "#f6f3ec",
+  "theme_color": "#1f3a5f",
+  "lang": "zh-Hant-TW",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
