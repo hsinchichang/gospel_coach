@@ -1,5 +1,5 @@
 // 離線快取：部署到 https 後，手機加到主畫面也能離線開啟。改了檔案記得把版本號加一。
-const CACHE = "gospel-coach-v3";
+const CACHE = "gospel-coach-v4";
 const FILES = ["./", "index.html", "styles.css", "manifest.webmanifest", "icon.svg",
   "data/content.js", "data/verses.js", "data/talks.js", "js/store.js", "js/prompts.js", "js/app.js"];
 
