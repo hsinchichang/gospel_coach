@@ -150,6 +150,12 @@
         <ol class="flow">${d.extend.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
         <p class="caution"><strong>注意：</strong>${esc(d.caution)}</p>
       </section>`);
+      const talk = TALKS.find((t) => t.door === d.id);
+      if (talk) parts.push(`<a class="panel talk-cta" href="#/talk/${d.id}">
+        <span class="small muted">開場之後，怎麼把福音講出來？</span>
+        <strong>福音講述：${esc(talk.title)} →</strong>
+        <span class="small">精簡版約 ${Math.round(talkMinutes(talk, false))} 分鐘・完整版約 ${Math.round(talkMinutes(talk, true))} 分鐘，每段附「可以這樣說」和「他可能會問」</span>
+      </a>`);
       parts.push(`<section class="panel">
         <h3>可能會遇到的問題</h3>
         <ul class="card-list">${cards.map((c) => `<li><a href="#/card/${c.id}"><span class="num">${c.id}</span>${esc(c.q)}</a></li>`).join("")}</ul>
@@ -643,7 +649,7 @@
         <p class="lead">這是核心內容，比 AI 建議更可靠。經文都是和合本原文。</p>
         <nav class="toc">
           <a href="#g-principles">核心精神</a><a href="#g-dims">三個維度</a><a href="#g-openers">開場白</a>
-          <a href="#g-decode">問題解碼</a><a href="#g-cards">解碼卡</a><a href="#g-gospel">福音表述</a>
+          <a href="#g-talks">福音講述</a><a href="#g-decode">問題解碼</a><a href="#g-cards">解碼卡</a><a href="#g-gospel">福音表述</a>
         </nav>
       </header>
 
@@ -676,6 +682,12 @@
           <ul class="openers">${d.openers.map((o) => `<li>「${esc(o)}」</li>`).join("")}</ul>
           <ol class="flow">${d.extend.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
           <p class="caution"><strong>注意：</strong>${esc(d.caution)}</p>`).join("")}
+      </section>
+
+      <section class="panel" id="g-talks">
+        <h2>福音講述（3 到 10 分鐘）</h2>
+        <p class="small">開場之後，怎麼把福音講出來。四個版本的核心一樣（神、人、耶穌、回應），切入點和比喻不同。</p>
+        <ul class="card-list">${TALKS.map((t) => `<li><a href="#/talk/${t.door}">${doorTag(t.door)} <span><strong>${esc(t.title)}</strong><br><span class="small muted">${esc(t.picture)}</span></span></a></li>`).join("")}</ul>
       </section>
 
       <section class="panel" id="g-decode">
@@ -747,11 +759,100 @@
       </section>`;
   }
 
+  // ---------- 福音講述 ----------
+  const TALKS = window.TALKS || [];
+  const fmtMin = (m) => (m < 1 ? `${Math.round(m * 60)} 秒` : `${Math.round(m * 10) / 10} 分鐘`);
+  const talkMinutes = (talk, full) => talk.segments.filter((s) => full || s.core).reduce((a, s) => a + s.min, 0);
+  let talkFull = false;
+
+  function renderTalk(doorId) {
+    const talk = TALKS.find((t) => t.door === doorId);
+    const d = door(doorId);
+    if (!talk || !d) { main.innerHTML = "<p>找不到這個講述。</p>"; return; }
+    const segs = talk.segments.filter((s) => talkFull || s.core);
+
+    main.innerHTML = `
+      <header class="page-head">
+        <a class="back" href="javascript:history.back()">← 返回</a>
+        <p class="small muted">福音講述 ${doorTag(d.id)}</p>
+        <h1>${esc(talk.title)}</h1>
+        <p class="lead">${esc(talk.summary)}</p>
+        <p class="small"><strong>核心比喻：</strong>${esc(talk.picture)}</p>
+        <nav class="toc">${TALKS.map((t) => `<a href="#/talk/${t.door}" class="${t.door === doorId ? "on" : ""}">${esc(door(t.door).short)}：${esc(t.title)}</a>`).join("")}</nav>
+      </header>
+      <section class="panel">
+        ${seg("len", [{ v: "short", l: `精簡版・約 ${Math.round(talkMinutes(talk, false))} 分鐘` }, { v: "full", l: `完整版・約 ${Math.round(talkMinutes(talk, true))} 分鐘` }], talkFull ? "full" : "short")}
+        <p class="small muted" style="margin-top:8px">「可以這樣說」是示範，不用背，用你自己的話講。每段講完都停下來問一句，讓他說話。</p>
+      </section>
+
+      <ol class="talk">${segs.map((s, i) => `
+        <li class="panel talk-seg">
+          <h3><span class="step">${i + 1}</span>${esc(s.t)} <span class="small muted">約 ${fmtMin(s.min)}</span></h3>
+          <p class="say">${esc(s.say)}</p>
+          ${s.ask ? `<p class="ask"><span>停下來問</span>「${esc(s.ask)}」</p>` : ""}
+          ${s.asks && s.asks.length ? `<div class="asks"><span class="small muted">他可能會問</span>
+            <ul class="card-list">${s.asks.map((id) => card(id)).filter(Boolean).map((c) => `<li><a href="#/card/${c.id}"><span class="num">${c.id}</span>${esc(c.q)}</a></li>`).join("")}</ul></div>` : ""}
+          ${s.verses ? `<div class="chips">${s.verses.map(verseChip).join("")}</div>` : ""}
+        </li>`).join("")}
+      </ol>
+
+      <section class="panel accent">
+        <h3>講完之後，他通常會是這三種反應</h3>
+        <ul class="endings">${(window.TALK_ENDINGS || []).map((e) => `<li><strong>${esc(e.t)}</strong> ${esc(e.d)}
+          ${e.card ? ` <a href="#/card/${e.card}">看解碼卡 ${e.card} →</a>` : ""}
+          ${e.gospel ? `<details><summary>決志禱告範例</summary><blockquote>${esc(C.gospel.salvationPrayer)}</blockquote></details>` : ""}</li>`).join("")}</ul>
+        <p class="caution"><strong>注意：</strong>${esc(talk.caution)}</p>
+      </section>
+
+      <section class="panel ai">
+        <h3>練習這個講法 <span class="badge">AI 建議・僅供參考</span></h3>
+        <p class="small">會照你目前選的${talkFull ? "完整版" : "精簡版"}產生指令。AI 扮演的人會在中途打斷、問問題。</p>
+        <div class="actions left">
+          <button class="btn ghost" data-talk-mode="demo">看 AI 示範講一次</button>
+          <button class="btn primary" data-talk-mode="practice">我來講一次</button>
+        </div>
+        ${AI_LINKS}
+        <div id="talk-log" hidden>
+          <p class="small muted" id="talk-hint"></p>
+          <label class="field"><span>這次學到的一個功課</span><input id="tl-lesson"></label>
+          <label class="field"><span>AI 回饋中有用的部分</span><textarea id="tl-notes" rows="3"></textarea></label>
+          <div class="actions left"><button class="btn primary" id="tl-save">存到筆記</button></div>
+        </div>
+      </section>`;
+
+    $(".seg[data-seg=len]", main).addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      talkFull = b.dataset.v === "full";
+      renderTalk(doorId);
+    });
+    let lastMode = null;
+    $$("[data-talk-mode]", main).forEach((b) => b.addEventListener("click", () => {
+      lastMode = b.dataset.talkMode;
+      copy(P.talkPrompt(lastMode, talk, talkFull));
+      $("#talk-log").hidden = false;
+      $("#talk-hint").textContent = lastMode === "demo"
+        ? "看完示範，把最想學起來的一句話記下來。"
+        : "講完記得輸入「結束練習」拿回饋，再把功課記下來。";
+    }));
+    $("#tl-save").addEventListener("click", () => {
+      const lesson = $("#tl-lesson").value.trim();
+      const notes = $("#tl-notes").value.trim();
+      if (!lesson && !notes) { toast("先寫一句功課再存"); return; }
+      const label = lastMode === "demo" ? "看示範" : "我來講";
+      S.upsertDebrief({ ...blankDebrief(), kind: "practice", nickname: `福音講述：${talk.title}・${label}`, door: talk.door, lesson, aiNotes: notes, exchanges: [] });
+      toast("已存到筆記");
+      $("#tl-lesson").value = "";
+      $("#tl-notes").value = "";
+      $("#talk-log").hidden = true;
+    });
+  }
+
   // ---------- 路由 ----------
   function route() {
     const h = location.hash.replace(/^#\/?/, "");
     const [page, arg] = h.split("/");
-    $$(".tabbar a").forEach((a) => a.classList.toggle("on", a.dataset.page === (page === "card" ? "guide" : page || "prepare")));
+    $$(".tabbar a").forEach((a) => a.classList.toggle("on", a.dataset.page === (page === "card" || page === "talk" ? "guide" : page || "prepare")));
     window.scrollTo(0, 0);
     switch (page) {
       case "debrief": return arg ? renderDebriefForm(arg) : renderDebriefList();
@@ -759,6 +860,7 @@
       case "notes": return renderNotes();
       case "guide": return renderGuide();
       case "card": return renderCard(arg);
+      case "talk": return renderTalk(arg);
       default: return renderPrepare();
     }
   }

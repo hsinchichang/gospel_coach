@@ -233,3 +233,18 @@ dialog::backdrop { background: rgba(10, 14, 20, .45); }
 .tag.level-3 { color: var(--danger); border-color: currentColor; }
 .persona details { color: var(--muted); }
 .persona details p { margin: 4px 0 0; }
+
+/* 福音講述 */
+.talk { list-style: none; padding: 0; margin: 0; }
+.talk-seg { margin-bottom: 14px; }
+.say { font-size: 1.02rem; line-height: 1.85; padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.say::before { content: "可以這樣說"; display: block; font-size: .75rem; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
+.ask { font-weight: 600; color: var(--primary); }
+.ask span { display: inline-block; font-size: .72rem; font-weight: 600; padding: 0 8px; margin-right: 6px; border-radius: 999px; background: var(--primary); color: var(--primary-ink); vertical-align: 2px; }
+.asks { margin-bottom: 8px; }
+.asks .card-list a { padding: 6px 2px; font-size: .925rem; }
+.talk-cta { display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: var(--ink); border: 2px solid var(--primary); }
+.talk-cta strong { color: var(--primary); font-size: 1.1rem; }
+.toc a.on { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+.endings { padding-left: 1.1em; }
+.endings li { margin-bottom: .7em; }

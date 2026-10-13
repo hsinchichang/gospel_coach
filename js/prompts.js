@@ -212,5 +212,74 @@
     return practicePrompt(source, whoStarts);
   }
 
-  window.PROMPTS = { debriefPrompt, practiceModePrompt, doorName, stageName, relationName };
+  // 福音講述練習：demo = AI 示範講一次；practice = 我來講，AI 扮演聽的人
+  function talkOutline(talk, full) {
+    return talk.segments
+      .filter((s) => full || s.core)
+      .map((s, i) => `${i + 1}. ${s.t}（約 ${s.min} 分鐘）：${s.say}${s.ask ? `\n   停下來問：「${s.ask}」` : ""}`)
+      .join("\n");
+  }
+
+  function talkListener(talk) {
+    const d = C.doors.find((x) => x.id === talk.door);
+    return `一位還沒信主、主要是「${d.name}」的台灣人（在意的是「${d.question}」，常見的人像是${d.groups}）。請你自己設定他的名字、年紀、工作和一個具體的生活背景。`;
+  }
+
+  function talkPrompt(mode, talk, full) {
+    const minutes = talk.segments.filter((s) => full || s.core).reduce((a, s) => a + s.min, 0);
+    const outline = talkOutline(talk, full);
+    if (mode === "demo") {
+      return [
+        `我正在學習用大約 ${Math.round(minutes)} 分鐘，向不同的人講清楚福音。請寫一段示範對話：由${EVANGELIST}，用「${talk.title}」這個講法，向下面這個人講福音。`,
+        "",
+        "【聽的人】",
+        talkListener(talk),
+        "",
+        "【講述大綱（我的核心教材，請照這個順序和精神，但用自然的口語講，不要照念）】",
+        outline,
+        "",
+        "【寫作要求】",
+        "1. 對方在中途要自然地打斷、提問或質疑 2 到 4 次，就像真人一樣。示範怎麼先問再答、簡短回應、再回到主線。",
+        "2. 每段講完都要停下來問對方，讓講述變成對話，而不是演講。",
+        "3. 在關鍵處用（教練筆記：……）說明這句話的用意和判斷。",
+        "4. 結局合乎現實：對方可能想再想想、有問題、或想信，示範對應的回應。",
+        "",
+        "【對話之後】",
+        "- 用條列整理出這個講法最關鍵的 5 句話，讓我可以背起來。",
+        "- 對方的每個提問屬於哪一型（知識型、情感型、防衛型、代價型），示範中是怎麼處理的。",
+        "",
+        TRUTH_RULES,
+      ].join("\n");
+    }
+    return [
+      `我正在練習用大約 ${Math.round(minutes)} 分鐘向人講清楚福音，這次用「${talk.title}」這個講法。請你扮演聽我講的人，跟我進行對話練習。`,
+      "",
+      "【你扮演的人】",
+      talkListener(talk),
+      "",
+      "【我準備的講述大綱（供你評估我講得如何，不要提示我）】",
+      outline,
+      "",
+      "【扮演規則】",
+      "1. 用這個角色的口吻、台灣用語自然回應，每次 1 到 3 句。",
+      "2. 在我講的過程中，像真人一樣打斷、提問或質疑 2 到 4 次，問題要符合這個人在意的事。如果我講太長、用教會術語、沒停下來問你，你就開始分心或敷衍。",
+      "3. 不要太容易被說服，但如果我講得清楚、真誠，你可以慢慢有興趣。",
+      "4. 不要跳出角色，直到我輸入「結束練習」。",
+      "",
+      "【結束後的回饋】",
+      "當我輸入「結束練習」，請跳出角色，以福音對話教練的身分回饋：",
+      "- 清楚度：福音的四個核心（神、人的罪、耶穌的死與復活、怎麼回應）有沒有講清楚？漏了哪個？",
+      "- 長度與節奏：有沒有講太長、有沒有停下來問、有沒有變成演講？",
+      "- 用語：有沒有對方聽不懂的教會術語？請改寫成口語。",
+      "- 提問處理：你的每個提問我有沒有先問再答、回應後有沒有回到主線？",
+      "- 神學準確性：有沒有不準確或容易誤解的地方？",
+      "- 給我 3 句可以講得更好的範例。",
+      "",
+      TRUTH_RULES,
+      "",
+      "我會先開口，請先只回覆「好，開始」。",
+    ].join("\n");
+  }
+
+  window.PROMPTS = { debriefPrompt, practiceModePrompt, talkPrompt, doorName, stageName, relationName };
 })();
